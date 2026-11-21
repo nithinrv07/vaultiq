@@ -89,9 +89,9 @@ export default function Profile({ toast }) {
       </Reveal>
 
       <Reveal className="card row between wrap gap">
-        <div><h3>Data</h3><p className="muted small">Everything lives in your browser's local storage.</p></div>
+        <div><h3>Data</h3><p className="muted small">Signed in: synced to your account. Guest: stored only in this browser.</p></div>
         <div className="row gap">
-          <button className="btn" onClick={() => { loadDemo(); toast({ title: 'Demo data loaded' }); }}>Reload demo</button>
+          <button className="btn" onClick={() => { if (confirm('Replace your data with the demo dataset?')) { loadDemo(); toast({ title: 'Demo data loaded' }); } }}>Reload demo</button>
           <button className="btn btn-ghost-danger" onClick={() => { if (confirm('Erase all transactions, rules and profile?')) { reset(); toast({ title: 'All data erased' }); } }}>Erase everything</button>
         </div>
       </Reveal>

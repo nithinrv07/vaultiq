@@ -1,4 +1,5 @@
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
+import { loadCloudState, saveCloudState } from './lib/firebase.js';
 import { categorize, merchantKey } from './lib/categories.js';
 import { setCurrency, todayStr, addDays, ymd, uid } from './lib/format.js';
 import { baselineSpend, buildNudges, detectRecurring } from './lib/model.js';
@@ -9,14 +10,46 @@ const LEGACY_KEY = 'evergreen:v1';
 const Ctx = createContext(null);
 
 const emptyProfile = () => ({ name: '', currency: 'INR', monthlyIncome: 0, fixedCosts: [], emergencyFund: { current: 0, targetMonths: 6 }, goals: [], budgets: {} });
-const initial = () => {
-  try { const s = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem(LEGACY_KEY)); if (s?.profile) return s; } catch { /* ignore */ }
+const keyFor = (uid) => (uid ? `${KEY}:${uid}` : KEY);
+const initial = (uid) => {
+  // Signed-in users get their own cache; on first sign-in it is seeded from guest data.
+  for (const k of [keyFor(uid), KEY, LEGACY_KEY]) {
+    try { const s = JSON.parse(localStorage.getItem(k)); if (s?.profile) return s; } catch { /* ignore */ }
+  }
   return { txs: [], rules: [], profile: emptyProfile(), usage: {}, ruleLog: [] };
 };
 
-export function StoreProvider({ children }) {
-  const [state, setState] = useState(initial);
-  useEffect(() => { localStorage.setItem(KEY, JSON.stringify(state)); }, [state]);
+/** Mount with key={uid} so each account gets a fresh provider. */
+export function StoreProvider({ uid = null, children }) {
+  const [state, setState] = useState(() => initial(uid));
+  const [sync, setSync] = useState(uid ? 'loading' : 'local'); // local | loading | saving | synced | error
+  const loaded = useRef(!uid);
+  useEffect(() => { localStorage.setItem(keyFor(uid), JSON.stringify(state)); }, [state, uid]);
+
+  // Pull the account's data once; if the account is new, push what's on this device.
+  useEffect(() => {
+    if (!uid) return;
+    let alive = true;
+    loadCloudState(uid)
+      .then(async (remote) => {
+        if (!alive) return;
+        if (remote?.profile) setState(remote);
+        else await saveCloudState(uid, state);
+        loaded.current = true;
+        setSync('synced');
+      })
+      .catch(() => { loaded.current = true; setSync('error'); });
+    return () => { alive = false; };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [uid]);
+
+  // Debounced push on every change.
+  useEffect(() => {
+    if (!uid || !loaded.current) return;
+    setSync('saving');
+    const t = setTimeout(() => saveCloudState(uid, state).then(() => setSync('synced')).catch(() => setSync('error')), 1200);
+    return () => clearTimeout(t);
+  }, [state, uid]);
   setCurrency(state.profile.currency);
 
   const recategorize = (txs, rules) => txs.map((t) => (t.manual ? t : { ...t, ...categorize(t, rules) }));
@@ -74,7 +107,7 @@ export function StoreProvider({ children }) {
     return { base, recurring, nudges };
   }, [state]);
 
-  return <Ctx.Provider value={{ ...state, ...derived, ...api }}>{children}</Ctx.Provider>;
+  return <Ctx.Provider value={{ ...state, ...derived, ...api, sync }}>{children}</Ctx.Provider>;
 }
 
 export const useStore = () => useContext(Ctx);

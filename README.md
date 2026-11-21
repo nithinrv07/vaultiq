@@ -1,4 +1,4 @@
-# Evergreen — personal finance coach with a living money model
+# Zvault — personal finance coach with a living money model
 
 A React + Vite app that runs entirely in the browser (data stays in localStorage).
 

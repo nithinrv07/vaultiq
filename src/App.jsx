@@ -53,7 +53,7 @@ function Shell() {
   return (
     <div className={`app ${menu ? 'menu-open' : ''}`}>
       <aside className="side">
-        <a className="brand" href="#/"><span className="brand-mark"><Icon name="leaf" size={16} /></span>Evergreen</a>
+        <a className="brand" href="#/"><span className="brand-mark">Z</span>Zvault</a>
         <nav>
           {NAV.map(([id, label, icon]) => (
             <a key={id} href={`#/app/${id}`} onClick={() => { setParams({}); setMenu(false); }} className={page === id ? 'on' : ''}>
@@ -68,7 +68,7 @@ function Shell() {
         </div>
       </aside>
       <div className="mobile-bar">
-        <a className="brand" href="#/"><span className="brand-mark"><Icon name="leaf" size={16} /></span>Evergreen</a>
+        <a className="brand" href="#/"><span className="brand-mark">Z</span>Zvault</a>
         <button className="icon-btn" onClick={() => setMenu(!menu)} aria-label="Menu"><Icon name={menu ? 'x' : 'menu'} /></button>
       </div>
       <main className="main" key={page}>

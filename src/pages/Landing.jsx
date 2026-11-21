@@ -78,7 +78,7 @@ export default function Landing({ enter, demo }) {
     <div className="landing">
       <div className="scroll-bar" style={{ transform: `scaleX(${y / Math.max(1, docH)})` }} />
       <nav className={`lnav ${y > 40 ? 'is-scrolled' : ''}`}>
-        <a className="brand" href="#/"><span className="brand-mark"><Icon name="leaf" size={16} /></span>Evergreen</a>
+        <a className="brand" href="#/"><span className="brand-mark">Z</span>Zvault</a>
         <div className="lnav-links">
           <a href="#how" onClick={(e) => { e.preventDefault(); document.getElementById('how').scrollIntoView({ behavior: 'smooth' }); }}>How it works</a>
           <a href="#features" onClick={(e) => { e.preventDefault(); document.getElementById('features').scrollIntoView({ behavior: 'smooth' }); }}>Features</a>
@@ -98,7 +98,7 @@ export default function Landing({ enter, demo }) {
             <br />
             {['understood.'].map((w, i) => <span key={w} className="word word-em" style={{ animationDelay: `${480 + i * 110}ms` }}><em>{w}</em></span>)}
           </h1>
-          <p className="hero-sub fade-in" style={{ animationDelay: '800ms' }}>Most budgeting apps sort transactions and stop. Evergreen learns your goals, models your future, and adapts as life changes.</p>
+          <p className="hero-sub fade-in" style={{ animationDelay: '800ms' }}>Most budgeting apps sort transactions and stop. Zvault learns your goals, models your future, and adapts as life changes.</p>
           <div className="hero-cta fade-in" style={{ animationDelay: '950ms' }}>
             <button className="btn btn-lime btn-lg" onClick={demo}><Icon name="spark" />Try with demo data</button>
             <button className="btn btn-glass btn-lg" onClick={enter}>Start fresh</button>
@@ -116,7 +116,7 @@ export default function Landing({ enter, demo }) {
 
       {/* MARQUEE: raw → clean */}
       <section className="transform-band" ref={marq}>
-        <div className="band-label"><span>What your bank sends</span><span>What Evergreen sees</span></div>
+        <div className="band-label"><span>What your bank sends</span><span>What Zvault sees</span></div>
         <div className="band-row raw" style={{ transform: `translateX(${-mp * 40}%)` }}>
           {[...RAW, ...RAW].map((r, i) => <code key={i}>{r[0]}</code>)}
         </div>
@@ -212,7 +212,7 @@ export default function Landing({ enter, demo }) {
         <Reveal variant="left" className="guard-text">
           <span className="eyebrow light">Guardrails</span>
           <h2 className="display-lg">A coach, <em>not a stock tipster.</em></h2>
-          <p>Evergreen explains risk, fees, diversification and inflation, and models what your own numbers can do. It will never tell you which security to buy — that belongs with a registered adviser who knows your whole picture.</p>
+          <p>Zvault explains risk, fees, diversification and inflation, and models what your own numbers can do. It will never tell you which security to buy — that belongs with a registered adviser who knows your whole picture.</p>
           <ul className="checks">
             <li><Icon name="check" size={16} />Educates on concepts</li>
             <li><Icon name="check" size={16} />Models scenarios with your data</li>
@@ -234,7 +234,7 @@ export default function Landing({ enter, demo }) {
           <button className="btn btn-lime btn-lg" onClick={demo}><Icon name="spark" />Explore the demo</button>
           <button className="btn btn-glass btn-lg" onClick={enter}>Import my statements</button>
         </div>
-        <p className="foot">Evergreen runs entirely in your browser. Educational tool — not financial advice.</p>
+        <p className="foot">Zvault runs entirely in your browser. Educational tool — not financial advice.</p>
       </section>
     </div>
   );

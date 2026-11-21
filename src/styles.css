@@ -1,4 +1,4 @@
-/* ============ Evergreen design system ============ */
+/* ============ Zvault design system ============ */
 :root {
   --paper: #f3f0e8;
   --paper-2: #ebe7dc;
@@ -571,3 +571,4 @@ input[type=range] { background: transparent; height: 20px; }
 .review { display: flex; flex-direction: column; gap: 20px; }
 .empty .row { flex-wrap: wrap; justify-content: center; }
 @media (max-width: 860px) { .app { align-content: start; } .page-head-right { width: 100%; } }
+.brand-mark { font: 700 18px/1 var(--serif); font-style: italic; letter-spacing: -.02em; }

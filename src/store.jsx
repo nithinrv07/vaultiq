@@ -4,12 +4,13 @@ import { setCurrency, todayStr, addDays, ymd, uid } from './lib/format.js';
 import { baselineSpend, buildNudges, detectRecurring } from './lib/model.js';
 import { sampleProfile, sampleTransactions } from './lib/sample.js';
 
-const KEY = 'evergreen:v1';
+const KEY = 'zvault:v1';
+const LEGACY_KEY = 'evergreen:v1';
 const Ctx = createContext(null);
 
 const emptyProfile = () => ({ name: '', currency: 'INR', monthlyIncome: 0, fixedCosts: [], emergencyFund: { current: 0, targetMonths: 6 }, goals: [], budgets: {} });
 const initial = () => {
-  try { const s = JSON.parse(localStorage.getItem(KEY)); if (s?.profile) return s; } catch { /* ignore */ }
+  try { const s = JSON.parse(localStorage.getItem(KEY) || localStorage.getItem(LEGACY_KEY)); if (s?.profile) return s; } catch { /* ignore */ }
   return { txs: [], rules: [], profile: emptyProfile(), usage: {}, ruleLog: [] };
 };
 

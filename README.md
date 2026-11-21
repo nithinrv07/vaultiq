@@ -1,6 +1,6 @@
 # Zvault — personal finance coach with a living money model
 
-A React + Vite progressive web app. Install it on your phone, sign in with Google or email, and your data syncs across devices through Firebase. Guests can use it without an account; their data stays in the browser.
+A React + Vite progressive web app. Install it on your phone, sign in with Google or email, and your data syncs across devices through Supabase. Guests can use it without an account; their data stays in the browser.
 
 ```bash
 npm install
@@ -29,12 +29,10 @@ Click **Try with demo data** on the landing page to explore with six months of s
 
 It opens full-screen with its own icon and works offline.
 
-## Sign-in setup (Firebase)
-1. Create a project at https://console.firebase.google.com.
-2. **Authentication → Sign-in method:** enable **Google** and **Email/Password**.
-3. **Authentication → Settings → Authorized domains:** add your Vercel domain (e.g. `vaultiq-three.vercel.app`).
-4. **Firestore Database:** create a database, then paste `firestore.rules` into the Rules tab and publish.
-5. **Project settings → Your apps → Web app:** copy the config into these environment variables (locally in `.env`, on Vercel under Settings → Environment Variables), then redeploy:
-   `VITE_FIREBASE_API_KEY`, `VITE_FIREBASE_AUTH_DOMAIN`, `VITE_FIREBASE_PROJECT_ID`, `VITE_FIREBASE_APP_ID`
+## Sign-in setup (Supabase)
+1. **SQL Editor:** run `supabase/schema.sql` (creates the `user_state` table with row-level security).
+2. **Authentication → URL Configuration:** set *Site URL* to `https://vaultiq-three.vercel.app` and add `https://vaultiq-three.vercel.app/**` and `http://localhost:5173/**` to *Redirect URLs*.
+3. **Authentication → Providers → Google:** enable it and paste a Google OAuth *Client ID* and *Secret*. Create them in Google Cloud Console → APIs & Services → Credentials → *OAuth client ID* (Web application), with authorised redirect URI `https://dlwgceagomwqseaxqcla.supabase.co/auth/v1/callback`.
+4. **Project Settings → API:** copy the *anon public* key into `VITE_SUPABASE_ANON_KEY` (locally in `.env`, on Vercel under Settings → Environment Variables) and redeploy. `VITE_SUPABASE_URL` defaults to this project.
 
-Until these are set, the login page offers guest mode only.
+Until the anon key is set, the login page offers guest mode only.

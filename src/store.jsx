@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { loadCloudState, saveCloudState } from './lib/firebase.js';
+import { loadCloudState, saveCloudState } from './lib/cloud.js';
 import { categorize, merchantKey } from './lib/categories.js';
 import { setCurrency, todayStr, addDays, ymd, uid } from './lib/format.js';
 import { baselineSpend, buildNudges, detectRecurring } from './lib/model.js';

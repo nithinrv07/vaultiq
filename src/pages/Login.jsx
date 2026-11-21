@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { useAuth } from '../auth.jsx';
 import { Icon } from '../components/ui.jsx';
-import { emailSignIn, friendlyAuthError, resetPassword, signInWithGoogle } from '../lib/firebase.js';
+import { emailSignIn, friendlyAuthError, resetPassword, signInWithGoogle } from '../lib/cloud.js';
 
 const GoogleG = () => (
   <svg width="20" height="20" viewBox="0 0 48 48" aria-hidden="true">
@@ -23,9 +23,14 @@ export default function Login({ onDone }) {
 
   async function run(kind, fn) {
     setError(''); setNote(''); setBusy(kind);
-    try { await fn(); onDone?.(); }
+    try {
+      const r = await fn();
+      if (r === 'redirect') return; // the browser is leaving for Google
+      if (r === 'confirm') { setNote('Check your inbox and tap the confirmation link, then sign in.'); setMode('signin'); return; }
+      onDone?.();
+    }
     catch (e) { setError(friendlyAuthError(e)); }
-    finally { setBusy(''); }
+    finally { setBusy((b) => (b === 'google' ? b : '')); }
   }
 
   async function forgot() {

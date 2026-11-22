@@ -52,7 +52,7 @@ export function answer(q, ctx) {
     if (cat) {
       const p = Math.min(100, +cut[2]) / 100;
       const s = simulate(profile, base, { cuts: { [cat]: p } });
-      return { scenario: { cuts: { [cat]: p } }, text: `Cutting ${cat} by ${cut[2]}% frees about ${money(s.surplus - now.surplus)} a month (your ${cat.toLowerCase()} averages ${money(base.byCat[cat] || 0)}).\n\nMonthly surplus: ${money(now.surplus)} → ${money(s.surplus)}.\n${goalDiff(now, s)}` };
+      return { scenario: { cuts: { [cat]: p } }, text: `Cutting ${cat} by ${cut[2]}% frees about ${money(s.surplus - now.surplus)} a month (your ${cat.toLowerCase()} averages ${money(base.byCat[cat] || 0)}).\n\nLeft over each month: ${money(now.surplus)} → ${money(s.surplus)}.\n${goalDiff(now, s)}` };
     }
   }
   // What-if: rent goes up/down
@@ -79,7 +79,7 @@ export function answer(q, ctx) {
   }
   if (/how am i doing|summary|overview|status|health/.test(lower)) {
     const onTrack = now.goals.filter((g) => g.onTrack).length;
-    return { text: `Here's your model right now:\n• Income ${money(now.income)}, fixed costs ${money(now.fixed)}, flexible spending ${money(now.variable)}.\n• Surplus ${money(now.surplus)}/month — a ${(now.savingsRate * 100).toFixed(0)}% savings rate.\n• Emergency fund: ${money(profile.emergencyFund.current)} of a ${money(now.efTarget)} target.\n• ${onTrack} of ${now.goals.length} goals are on track.` };
+    return { text: `Here's your model right now:\n• Income ${money(now.income)}, fixed costs ${money(now.fixed)}, flexible spending ${money(now.variable)}.\n• Left over: ${money(now.surplus)}/month (${money(now.surplus * 12)} a year).\n• Emergency fund: ${money(profile.emergencyFund.current)} of a ${money(now.efTarget)} target.\n• ${onTrack} of ${now.goals.length} goals are on track.` };
   }
   if (/where.*(money|spend)|biggest|top categor|spending most/.test(lower)) {
     const top = Object.entries(base.byCat).sort((a, b) => b[1] - a[1]).slice(0, 4);

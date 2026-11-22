@@ -255,14 +255,14 @@ export function monthlyReview({ txs, month, profile, base, recurring }) {
   const insights = [];
   if (prev) {
     const d = cur.spend - prev.spend;
-    insights.push(`Spending ${d >= 0 ? 'rose' : 'fell'} ${money(Math.abs(d))} (${prev.spend ? Math.abs((d / prev.spend) * 100).toFixed(0) : 0}%) versus ${monthLabel(prev.month, true)}.`);
+    insights.push(`Spending ${d >= 0 ? 'rose' : 'fell'} ${money(Math.abs(d))} versus ${monthLabel(prev.month, true)}.`);
     const movers = cats.map((c) => ({ ...c, d: c.amount - c.prev })).sort((a, b) => Math.abs(b.d) - Math.abs(a.d)).slice(0, 2);
     for (const m of movers) if (Math.abs(m.d) > 100) insights.push(`${m.cat} ${m.d > 0 ? 'up' : 'down'} ${money(Math.abs(m.d))}.`);
   }
   const over = cats.filter((c) => c.budget && c.amount > c.budget);
   if (over.length) insights.push(`Over plan in ${over.map((c) => c.cat).join(', ')}.`);
   else if (cats.length) insights.push('Every planned category stayed within budget.');
-  if (cur.income) insights.push(`You kept ${((net / cur.income) * 100).toFixed(0)}% of income${cur.saved ? `, and moved ${money(cur.saved)} into savings/investments` : ''}.`);
+  if (cur.income) insights.push(`You kept ${money(net)} of ${money(cur.income)}${cur.saved ? `, and moved ${money(cur.saved)} into savings/investments` : ''}.`);
   const subs = recurring.filter((r) => r.history.some((h) => monthKey(h.date) === month));
   return { month, cur, prev, cats, merchants: Object.values(merchants).sort((a, b) => b.total - a.total).slice(0, 6), net, insights, subs, subsTotal: subs.reduce((a, r) => a + (r.history.find((h) => monthKey(h.date) === month)?.amount || 0), 0), count: mtx.length };
 }

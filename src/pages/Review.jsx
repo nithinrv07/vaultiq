@@ -27,7 +27,7 @@ export default function Review({ go }) {
         </div>} />
 
       <Reveal className="card review-hero">
-        <div className="review-grade" style={{ '--g': grade[1] }}><span className="eyebrow">This month was</span><strong>{grade[0]}</strong><span className="muted">kept {(rate * 100).toFixed(0)}% of income</span></div>
+        <div className="review-grade" style={{ '--g': grade[1] }}><span className="eyebrow">This month was</span><strong>{grade[0]}</strong><span className="muted">kept {money(r.net)} of {money(r.cur.income)}</span></div>
         <div className="review-nums">
           <div><span className="eyebrow">Money in</span><b className="num"><CountUp value={r.cur.income} /></b></div>
           <div><span className="eyebrow">Money out</span><b className="num"><CountUp value={r.cur.spend} /></b></div>

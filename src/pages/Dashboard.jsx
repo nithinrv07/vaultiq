@@ -30,14 +30,14 @@ export default function Dashboard({ go }) {
   return (
     <>
       <PageHead eyebrow={monthLabel(mk, true)} title={<>Good {greeting()}{profile.name ? `, ${profile.name}` : ''}.</>}
-        sub={sim.surplus >= 0 ? <>Your model shows <b>{money(sim.surplus)}</b> of breathing room each month — a {(sim.savingsRate * 100).toFixed(0)}% savings rate.</> : <>Your model is running a <b>{money(-sim.surplus)}</b> monthly gap. Let's find it.</>}
+        sub={sim.surplus >= 0 ? <>After all your spending, <b>{money(sim.surplus)}</b> is left over each month — about {money(sim.surplus * 12, { compact: true })} a year for goals and savings.</> : <>Your model is running a <b>{money(-sim.surplus)}</b> monthly gap. Let's find it.</>}
         right={<button className="btn btn-primary" onClick={() => go('planner')}><Icon name="sliders" />Run a what-if</button>} />
 
       <section className="kpis">
         {[
           { label: 'Spent this month', value: cur.spend, foot: `Day ${day} of ${dim} · plan ${money(Object.values(budgets).reduce((a, b) => a + b, 0) + sim.fixed, { compact: true })}` },
           { label: 'Income this month', value: cur.income, foot: `Model assumes ${money(sim.income)}/mo` },
-          { label: 'Monthly surplus', value: sim.surplus, foot: `${(sim.savingsRate * 100).toFixed(0)}% of income`, accent: true },
+          { label: 'Left over each month', value: sim.surplus, foot: `${money(sim.income)} in − ${money(sim.fixed + sim.variable)} spent`, accent: true },
           { label: 'Emergency cushion', value: efMonths, fmt: (v) => `${v.toFixed(1)} mo`, foot: `Target ${profile.emergencyFund.targetMonths} months of essentials` },
         ].map((k, i) => (
           <Reveal key={k.label} delay={i * 80} className={`card kpi ${k.accent ? 'kpi-accent' : ''}`}>

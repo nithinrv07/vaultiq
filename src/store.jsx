@@ -50,7 +50,7 @@ export function StoreProvider({ uid = null, children }) {
     const t = setTimeout(() => saveCloudState(uid, state).then(() => setSync('synced')).catch(() => setSync('error')), 1200);
     return () => clearTimeout(t);
   }, [state, uid]);
-  setCurrency(state.profile.currency);
+  setCurrency('INR'); // Zvault works in rupees
 
   const recategorize = (txs, rules) => txs.map((t) => (t.manual ? t : { ...t, ...categorize(t, rules) }));
 

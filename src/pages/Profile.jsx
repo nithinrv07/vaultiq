@@ -1,7 +1,7 @@
 import { useStore } from '../store.jsx';
 import { Icon, PageHead, Reveal, CatSelect, CatPill } from '../components/ui.jsx';
 import { CATEGORIES } from '../lib/categories.js';
-import { CURRENCIES, money, ymd, addMonths, uid } from '../lib/format.js';
+import { money, ymd, addMonths, uid } from '../lib/format.js';
 import { effectiveBudgets, simulate } from '../lib/model.js';
 
 export default function Profile({ toast }) {
@@ -20,8 +20,7 @@ export default function Profile({ toast }) {
         <Reveal className="card">
           <div className="card-head"><h3>Income & basics</h3></div>
           <div className="form-grid">
-            <label>Your name<input value={profile.name} onChange={(e) => setProfile({ name: e.target.value })} placeholder="Optional" /></label>
-            <label>Currency<select value={profile.currency} onChange={(e) => setProfile({ currency: e.target.value })}>{Object.keys(CURRENCIES).map((c) => <option key={c}>{c}</option>)}</select></label>
+            <label className="span-2">Your name<input value={profile.name} onChange={(e) => setProfile({ name: e.target.value })} placeholder="Optional" /></label>
             <label className="span-2">Monthly take-home income<input type="number" value={profile.monthlyIncome} onChange={(e) => setProfile({ monthlyIncome: num(e.target.value) })} />
               <span className="hint">Imported average: {money(base.income)}/mo {base.income > 0 && <button className="link" onClick={() => setProfile({ monthlyIncome: Math.round(base.income) })}>use it</button>}</span></label>
           </div>

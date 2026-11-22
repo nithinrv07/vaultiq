@@ -12,20 +12,13 @@ function Range(props) {
   return <input type="range" {...props} style={{ '--v': `${((value - min) / ((max - min) || 1)) * 100}%` }} />;
 }
 
-const PRESETS = [
-  { label: 'Cut dining out 30%', s: { cuts: { Dining: 0.3 } } },
-  { label: 'Rent +10%', s: { rentPct: 0.1 } },
-  { label: '10% raise', s: { incomeDelta: 0.1 } },
-  { label: 'Cancel flagged subs', s: { cancelSubs: true } },
-  { label: 'Lean month: −20% on wants', s: { cuts: { Dining: 0.2, Shopping: 0.2, Entertainment: 0.2, Travel: 0.2 } } },
-];
 
 export default function Planner({ params = {} }) {
   const store = useStore();
   const { profile, base, recurring } = store;
   const [cuts, setCuts] = useState(params.cut ? { [params.cut]: 0.2 } : {});
   const [rentDelta, setRentDelta] = useState(0);
-  const [incomeDelta, setIncomeDelta] = useState(0);
+  const [incomeRs, setIncomeRs] = useState(0); // change in monthly income, in rupees
   const [extra, setExtra] = useState(0);
   const [oneOff, setOneOff] = useState(0);
   const [ask, setAsk] = useState('');
@@ -33,25 +26,35 @@ export default function Planner({ params = {} }) {
 
   const rent = profile.fixedCosts.filter((f) => f.category === 'Housing').reduce((a, f) => a + +f.amount, 0);
   const flaggedSubs = recurring.filter((r) => r.status === 'cancel' || r.alerts.some((a) => a.type === 'unused')).reduce((a, r) => a + r.monthly, 0);
+  const baseIncome = Number(profile.monthlyIncome) || base.income || 1;
+  const incomeDelta = incomeRs / baseIncome;
   const scenario = { cuts, rentDelta, incomeDelta, extraSaving: extra, oneOff };
   const now = useMemo(() => simulate(profile, base), [profile, base]);
-  const sim = useMemo(() => simulate(profile, base, scenario), [profile, base, cuts, rentDelta, incomeDelta, extra, oneOff]);
-  const dirty = Object.values(cuts).some((v) => v) || rentDelta || incomeDelta || extra || oneOff;
+  const sim = useMemo(() => simulate(profile, base, scenario), [profile, base, cuts, rentDelta, incomeRs, extra, oneOff]);
+  const dirty = Object.values(cuts).some((v) => v) || rentDelta || incomeRs || extra || oneOff;
+  const r100 = (n) => Math.round(n / 100) * 100;
+  const PRESETS = [
+    { label: `Spend ${money(r100((base.byCat.Dining || 0) * 0.3))} less on dining`, s: { cuts: { Dining: 0.3 } } },
+    { label: `Rent up ${money(r100(rent * 0.1))}`, s: { rentRs: r100(rent * 0.1) } },
+    { label: `Raise of ${money(r100(baseIncome * 0.1))}`, s: { incomeRs: r100(baseIncome * 0.1) } },
+    { label: `Cancel flagged subs (${money(flaggedSubs)})`, s: { cancelSubs: true } },
+    { label: 'Lean month on wants', s: { cuts: { Dining: 0.2, Shopping: 0.2, Entertainment: 0.2, Travel: 0.2 } } },
+  ];
   const cats = Object.entries(base.byCat).filter(([c]) => !profile.fixedCosts.some((f) => f.category === c)).sort((a, b) => b[1] - a[1]);
 
   function preset(p) {
     reset();
     if (p.cuts) setCuts(p.cuts);
-    if (p.rentPct) setRentDelta(Math.round(rent * p.rentPct));
-    if (p.incomeDelta) setIncomeDelta(p.incomeDelta);
+    if (p.rentRs) setRentDelta(p.rentRs);
+    if (p.incomeRs) setIncomeRs(p.incomeRs);
     if (p.cancelSubs) setExtra(Math.round(flaggedSubs));
   }
-  function reset() { setCuts({}); setRentDelta(0); setIncomeDelta(0); setExtra(0); setOneOff(0); setReply(null); }
+  function reset() { setCuts({}); setRentDelta(0); setIncomeRs(0); setExtra(0); setOneOff(0); setReply(null); }
   function runAsk(e) {
     e.preventDefault();
     const r = answer(ask, store);
     setReply(r);
-    if (r.scenario) { reset(); setReply(r); if (r.scenario.cuts) setCuts(r.scenario.cuts); if (r.scenario.rentDelta) setRentDelta(r.scenario.rentDelta); if (r.scenario.incomeDelta) setIncomeDelta(r.scenario.incomeDelta); }
+    if (r.scenario) { reset(); setReply(r); if (r.scenario.cuts) setCuts(r.scenario.cuts); if (r.scenario.rentDelta) setRentDelta(r.scenario.rentDelta); if (r.scenario.incomeDelta) setIncomeRs(r100(r.scenario.incomeDelta * baseIncome)); }
   }
   const fmtM = (d) => (d ? monthLabel(monthKey(d)) + ' ' + d.slice(0, 4) : '7+ yrs');
 
@@ -73,11 +76,11 @@ export default function Planner({ params = {} }) {
         <Reveal className="card levers">
           <h3>Levers</h3>
           <div className="lever">
-            <div className="row between"><span>Income change</span><b className={incomeDelta ? (incomeDelta > 0 ? 'pos' : 'neg') : ''}>{incomeDelta > 0 ? '+' : ''}{Math.round(incomeDelta * 100)}%</b></div>
-            <Range min={-50} max={50} value={Math.round(incomeDelta * 100)} onChange={(e) => setIncomeDelta(+e.target.value / 100)} />
+            <div className="row between"><span>Monthly income change</span><b className={incomeRs ? (incomeRs > 0 ? 'pos' : 'neg') : ''}>{money(incomeRs, { sign: true })}</b></div>
+            <Range min={-r100(baseIncome * 0.5)} max={r100(baseIncome * 0.5)} step={500} value={incomeRs} onChange={(e) => setIncomeRs(+e.target.value)} />
           </div>
           <div className="lever">
-            <div className="row between"><span>Rent / housing change</span><b className={rentDelta ? (rentDelta > 0 ? 'neg' : 'pos') : ''}>{money(rentDelta, { sign: true })}</b></div>
+            <div className="row between"><span>Monthly rent change</span><b className={rentDelta ? (rentDelta > 0 ? 'neg' : 'pos') : ''}>{money(rentDelta, { sign: true })}</b></div>
             <Range min={-Math.round(rent * 0.5) || -10000} max={Math.round(rent * 0.5) || 10000} step={100} value={rentDelta} onChange={(e) => setRentDelta(+e.target.value)} />
           </div>
           <div className="lever">
@@ -92,8 +95,8 @@ export default function Planner({ params = {} }) {
           <h4 className="lever-sub">Cut flexible spending</h4>
           {cats.map(([c, v]) => (
             <div key={c} className="lever lever-cat" style={{ '--c': catColor(c) }}>
-              <div className="row between"><CatPill cat={c} small /><span className="small"><b>{cuts[c] ? `−${Math.round(cuts[c] * 100)}%` : '—'}</b> <span className="muted">{money(v * (1 - (cuts[c] || 0)))}</span></span></div>
-              <Range min={0} max={100} step={5} value={Math.round((cuts[c] || 0) * 100)} onChange={(e) => setCuts({ ...cuts, [c]: +e.target.value / 100 })} />
+              <div className="row between"><CatPill cat={c} small /><span className="small"><b className={cuts[c] ? 'pos' : ''}>{cuts[c] ? `save ${money(v * cuts[c])}` : '—'}</b> <span className="muted">{money(v * (1 - (cuts[c] || 0)))}/mo</span></span></div>
+              <Range min={0} max={Math.round(v)} step={v > 2000 ? 50 : 10} value={Math.round((cuts[c] || 0) * v)} onChange={(e) => setCuts({ ...cuts, [c]: Math.min(1, +e.target.value / v) })} />
             </div>
           ))}
         </Reveal>
@@ -101,9 +104,9 @@ export default function Planner({ params = {} }) {
         <div className="stack">
           <Reveal className="card">
             <div className="sim-kpis">
-              <div><span className="eyebrow">Monthly surplus</span><strong>{money(sim.surplus)}</strong>{dirty ? <span className={`delta ${sim.surplus >= now.surplus ? 'pos' : 'neg'}`}>{money(sim.surplus - now.surplus, { sign: true })}</span> : null}</div>
-              <div><span className="eyebrow">Savings rate</span><strong>{(sim.savingsRate * 100).toFixed(0)}%</strong>{dirty ? <span className={`delta ${sim.savingsRate >= now.savingsRate ? 'pos' : 'neg'}`}>{((sim.savingsRate - now.savingsRate) * 100).toFixed(1)} pts</span> : null}</div>
-              <div><span className="eyebrow">Emergency fund full</span><strong>{sim.efDoneAt === 0 ? 'Now' : sim.efDoneAt ? `${sim.efDoneAt} mo` : '—'}</strong>{dirty && now.efDoneAt !== sim.efDoneAt ? <span className="delta">was {now.efDoneAt ?? '—'} mo</span> : null}</div>
+              <div><span className="eyebrow">Left over each month</span><strong>{money(sim.surplus)}</strong>{dirty ? <span className={`delta ${sim.surplus >= now.surplus ? 'pos' : 'neg'}`}>{money(sim.surplus - now.surplus, { sign: true })}</span> : null}</div>
+              <div><span className="eyebrow">Saved per year</span><strong>{money(sim.surplus * 12, { compact: true })}</strong>{dirty ? <span className={`delta ${sim.surplus >= now.surplus ? 'pos' : 'neg'}`}>{money((sim.surplus - now.surplus) * 12, { compact: true, sign: true })}</span> : null}</div>
+              <div><span className="eyebrow">Emergency fund</span><strong>{sim.efDoneAt === 0 ? 'Now' : sim.efDoneAt ? `${sim.efDoneAt} mo` : '—'}</strong>{dirty && now.efDoneAt !== sim.efDoneAt ? <span className="delta">was {now.efDoneAt ?? '—'} mo</span> : null}</div>
               <div><span className="eyebrow">Saved in 5 yrs</span><strong>{money(sim.series[59].total, { compact: true })}</strong>{dirty ? <span className={`delta ${sim.series[59].total >= now.series[59].total ? 'pos' : 'neg'}`}>{money(sim.series[59].total - now.series[59].total, { compact: true, sign: true })}</span> : null}</div>
             </div>
             <ProjectionChart base={now.series} scenario={dirty ? sim.series : null}
@@ -142,7 +145,7 @@ export default function Planner({ params = {} }) {
               <div className="flow-row"><span>Fixed costs</span><b>−{money(sim.fixed)}</b></div>
               <div className="flow-row"><span>Flexible spending</span><b>−{money(sim.variable)}</b></div>
               {extra ? <div className="flow-row"><span>Extra saving</span><b className="pos">+{money(extra)}</b></div> : null}
-              <div className="flow-row total"><span>Surplus to goals & cushion</span><b>{money(sim.surplus)}</b></div>
+              <div className="flow-row total"><span>Left over for goals & savings</span><b>{money(sim.surplus)}</b></div>
             </div>
             <div className="stackbar">
               {[['Fixed', sim.fixed, 'var(--ink-2)'], ['Flexible', sim.variable, 'var(--coral)'], ['Surplus', Math.max(0, sim.surplus), 'var(--forest)']].map(([l, v, c]) => (

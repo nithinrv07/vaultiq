@@ -14,22 +14,22 @@ export default function Profile({ toast }) {
 
   return (
     <>
-      <PageHead eyebrow="Financial profile" title={<>The <em>shape</em> of your money.</>} sub="This is the persistent model every projection, nudge and review is built on. Saved automatically on this device." />
+      <PageHead eyebrow="My money & goals" title={<>Your money, <em>in one place</em>.</>} sub="This is the persistent model every projection, nudge and review is built on. Saved automatically on this device." />
 
       <section className="grid-1-1">
         <Reveal className="card">
-          <div className="card-head"><h3>Income & basics</h3></div>
+          <div className="card-head"><h3>About you</h3></div>
           <div className="form-grid">
             <label className="span-2">Your name<input value={profile.name} onChange={(e) => setProfile({ name: e.target.value })} placeholder="Optional" /></label>
-            <label className="span-2">Monthly take-home income<input type="number" value={profile.monthlyIncome} onChange={(e) => setProfile({ monthlyIncome: num(e.target.value) })} />
+            <label className="span-2">Money you get each month (after tax)<input type="number" value={profile.monthlyIncome} onChange={(e) => setProfile({ monthlyIncome: num(e.target.value) })} />
               <span className="hint">Imported average: {money(base.income)}/mo {base.income > 0 && <button className="link" onClick={() => setProfile({ monthlyIncome: Math.round(base.income) })}>use it</button>}</span></label>
           </div>
         </Reveal>
         <Reveal className="card" delay={100}>
-          <div className="card-head"><h3><Icon name="shield" /> Emergency fund</h3></div>
+          <div className="card-head"><h3><Icon name="shield" /> Safety money</h3></div>
           <div className="form-grid">
             <label>Saved so far<input type="number" value={profile.emergencyFund.current} onChange={(e) => setProfile((p) => ({ emergencyFund: { ...p.emergencyFund, current: num(e.target.value) } }))} /></label>
-            <label>Target (months of essentials)<input type="number" min="1" max="24" value={profile.emergencyFund.targetMonths} onChange={(e) => setProfile((p) => ({ emergencyFund: { ...p.emergencyFund, targetMonths: num(e.target.value) } }))} /></label>
+            <label>How many months should it cover?<input type="number" min="1" max="24" value={profile.emergencyFund.targetMonths} onChange={(e) => setProfile((p) => ({ emergencyFund: { ...p.emergencyFund, targetMonths: num(e.target.value) } }))} /></label>
           </div>
           <div className="ef-bar"><div style={{ width: `${Math.min(100, (profile.emergencyFund.current / Math.max(1, sim.efTarget)) * 100)}%` }} /></div>
           <p className="muted small">Essentials ≈ {money(sim.essentials)}/mo → target {money(sim.efTarget)}. {sim.efDoneAt ? `Fully funded in ~${sim.efDoneAt} month(s) at your current surplus.` : profile.emergencyFund.current >= sim.efTarget ? 'Fully funded ✓' : 'Not reached at the current surplus.'}</p>
@@ -37,7 +37,7 @@ export default function Profile({ toast }) {
       </section>
 
       <Reveal className="card">
-        <div className="card-head"><h3>Fixed costs</h3><span className="muted small">Total {money(sim.fixed)}/mo</span></div>
+        <div className="card-head"><h3>Regular bills</h3><span className="muted small">Total {money(sim.fixed)}/mo</span></div>
         <div className="rows-edit">
           {profile.fixedCosts.map((f) => (
             <div key={f.id} className="row-edit">
@@ -48,11 +48,11 @@ export default function Profile({ toast }) {
             </div>
           ))}
         </div>
-        <button className="btn btn-s" onClick={() => setProfile((p) => ({ fixedCosts: [...p.fixedCosts, { id: uid(), name: '', amount: 0, category: 'Housing' }] }))}><Icon name="plus" size={14} />Add fixed cost</button>
+        <button className="btn btn-s" onClick={() => setProfile((p) => ({ fixedCosts: [...p.fixedCosts, { id: uid(), name: '', amount: 0, category: 'Housing' }] }))}><Icon name="plus" size={14} />Add a bill</button>
       </Reveal>
 
       <Reveal className="card">
-        <div className="card-head"><h3><Icon name="target" /> Goals</h3><span className="muted small">Funded in deadline order after 30% goes to your emergency fund</span></div>
+        <div className="card-head"><h3><Icon name="target" /> Goals</h3><span className="muted small">Zvault saves for the nearest goal first</span></div>
         <div className="goals-edit">
           {profile.goals.map((g) => {
             const s = sim.goals.find((x) => x.id === g.id);
@@ -75,7 +75,7 @@ export default function Profile({ toast }) {
       </Reveal>
 
       <Reveal className="card">
-        <div className="card-head"><h3>Monthly plan per category</h3><span className="muted small">Defaults to your 3-month average · nudges fire when you drift</span></div>
+        <div className="card-head"><h3>Monthly spending limits</h3><span className="muted small">Leave blank to use your usual spending. You'll get a heads-up if you go over.</span></div>
         <div className="budget-edit">
           {CATEGORIES.filter((c) => c.kind === 'variable').map((c) => (
             <label key={c.id} className="budget-cell">

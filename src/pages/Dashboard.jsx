@@ -10,9 +10,9 @@ export default function Dashboard({ go }) {
   if (!txs.length && !profile.monthlyIncome) {
     return (
       <>
-        <PageHead eyebrow="Welcome" title={<>Let's grow your <em>money model</em>.</>} sub="Import a statement, paste bank SMS, or explore with a realistic demo dataset." />
-        <Empty title="No data yet" body="Your dashboard comes alive once there are transactions to learn from."
-          action={<div className="row gap"><button className="btn btn-primary" onClick={loadDemo}><Icon name="spark" />Load demo data</button><button className="btn" onClick={() => go('import')}><Icon name="upload" />Import statement</button></div>} />
+        <PageHead eyebrow="Welcome" title={<>Let's get <em>started</em>.</>} sub="Add your bank statement or bank SMS, or try Zvault with sample data first." />
+        <Empty title="Nothing here yet" body="Once you add a bank statement, you'll see where your money goes."
+          action={<div className="row gap"><button className="btn btn-primary" onClick={loadDemo}><Icon name="spark" />Try with sample data</button><button className="btn" onClick={() => go('import')}><Icon name="upload" />Add bank statement</button></div>} />
       </>
     );
   }
@@ -31,14 +31,16 @@ export default function Dashboard({ go }) {
     <>
       <PageHead eyebrow={monthLabel(mk, true)} title={<>Good {greeting()}{profile.name ? `, ${profile.name}` : ''}.</>}
         sub={sim.surplus >= 0 ? <>After all your spending, <b>{money(sim.surplus)}</b> is left over each month — about {money(sim.surplus * 12, { compact: true })} a year for goals and savings.</> : <>Your model is running a <b>{money(-sim.surplus)}</b> monthly gap. Let's find it.</>}
-        right={<button className="btn btn-primary" onClick={() => go('planner')}><Icon name="sliders" />Run a what-if</button>} />
+        right={<button className="btn btn-primary" onClick={() => go('planner')}><Icon name="sliders" />Plan ahead</button>} />
+
+      <StatusCard sim={sim} nudges={nudges} cur={cur} budgets={budgets} go={go} efMonths={efMonths} />
 
       <section className="kpis">
         {[
           { label: 'Spent this month', value: cur.spend, foot: `Day ${day} of ${dim} · plan ${money(Object.values(budgets).reduce((a, b) => a + b, 0) + sim.fixed, { compact: true })}` },
-          { label: 'Income this month', value: cur.income, foot: `Model assumes ${money(sim.income)}/mo` },
-          { label: 'Left over each month', value: sim.surplus, foot: `${money(sim.income)} in − ${money(sim.fixed + sim.variable)} spent`, accent: true },
-          { label: 'Emergency cushion', value: efMonths, fmt: (v) => `${v.toFixed(1)} mo`, foot: `Target ${profile.emergencyFund.targetMonths} months of essentials` },
+          { label: 'Money in this month', value: cur.income, foot: `Usually ${money(sim.income)} a month` },
+          { label: 'Money left each month', value: sim.surplus, foot: `${money(sim.income)} in − ${money(sim.fixed + sim.variable)} spent`, accent: true },
+          { label: 'Safety money', value: +profile.emergencyFund.current || 0, foot: `Covers ${efMonths.toFixed(1)} months of bills · aim for ${profile.emergencyFund.targetMonths}` },
         ].map((k, i) => (
           <Reveal key={k.label} delay={i * 80} className={`card kpi ${k.accent ? 'kpi-accent' : ''}`}>
             <span className="eyebrow">{k.label}</span>
@@ -50,11 +52,11 @@ export default function Dashboard({ go }) {
 
       <section className="grid-2-1">
         <Reveal className="card">
-          <div className="card-head"><h3>Cash flow</h3><div className="legend"><span><i style={{ background: 'var(--forest)' }} />In</span><span><i style={{ background: 'var(--coral)' }} />Out</span></div></div>
+          <div className="card-head"><h3>Money in vs money out</h3><div className="legend"><span><i style={{ background: 'var(--forest)' }} />In</span><span><i style={{ background: 'var(--coral)' }} />Out</span></div></div>
           <CashflowBars height={280} data={stats.slice(-6).map((s) => ({ label: monthLabel(s.month), income: s.income, spend: s.spend }))} />
         </Reveal>
         <Reveal className="card" delay={100}>
-          <div className="card-head"><h3>Where it went</h3><span className="muted small">{monthLabel(mk)}</span></div>
+          <div className="card-head"><h3>Where your money went</h3><span className="muted small">{monthLabel(mk)}</span></div>
           <div className="donut-row">
             <Donut data={donut} size={180} center={<><span className="eyebrow">Spent</span><strong>{money(cur.spend, { compact: true })}</strong></>} />
             <ul className="mini-legend">
@@ -66,7 +68,7 @@ export default function Dashboard({ go }) {
 
       <section className="grid-1-1">
         <Reveal className="card">
-          <div className="card-head"><h3><Icon name="bell" /> Nudges</h3><span className="badge">{nudges.length}</span></div>
+          <div className="card-head"><h3><Icon name="bell" /> Heads-up</h3><span className="badge">{nudges.length}</span></div>
           {nudges.length ? (
             <ul className="nudges">
               {nudges.slice(0, 5).map((n, i) => (
@@ -80,10 +82,10 @@ export default function Dashboard({ go }) {
                 </li>
               ))}
             </ul>
-          ) : <p className="muted">All quiet — spending is tracking your plan.</p>}
+          ) : <p className="muted">All good — your spending is on track.</p>}
         </Reveal>
         <Reveal className="card" delay={100}>
-          <div className="card-head"><h3>Budget pace</h3><button className="link" onClick={() => go('profile')}>Edit plan</button></div>
+          <div className="card-head"><h3>This month's spending</h3><button className="link" onClick={() => go('profile')}>Change limits</button></div>
           <ul className="budget-list">
             {Object.entries(budgets).sort((a, b) => b[1] - a[1]).slice(0, 7).map(([c, b]) => {
               const s = cur.byCat[c] || 0;
@@ -118,7 +120,7 @@ export default function Dashboard({ go }) {
           ) : <p className="muted">No goals yet. <button className="link" onClick={() => go('profile')}>Add one</button></p>}
         </Reveal>
         <Reveal className="card" delay={100}>
-          <div className="card-head"><h3><Icon name="repeat" /> Coming up</h3><button className="link" onClick={() => go('recurring')}>All recurring</button></div>
+          <div className="card-head"><h3><Icon name="repeat" /> Bills coming up</h3><button className="link" onClick={() => go('recurring')}>See all</button></div>
           {upcoming.length ? (
             <ul className="upcoming">
               {upcoming.map((r) => (
@@ -139,4 +141,40 @@ export default function Dashboard({ go }) {
 function greeting() {
   const h = new Date().getHours();
   return h < 12 ? 'morning' : h < 17 ? 'afternoon' : 'evening';
+}
+
+/** One plain-language verdict with a single next step. */
+function StatusCard({ sim, nudges, cur, budgets, go, efMonths }) {
+  const over = Object.entries(budgets).filter(([c, b]) => (cur.byCat[c] || 0) > b).sort((a, b) => ((cur.byCat[b[0]] || 0) - b[1]) - ((cur.byCat[a[0]] || 0) - a[1]));
+  const late = sim.goals.filter((g) => !g.onTrack && g.saved < g.target);
+  let tone, title, body, action;
+  if (sim.surplus < 0) {
+    tone = 'bad'; title = 'You\'re spending more than you earn';
+    body = <>Each month about <b>{money(-sim.surplus)}</b> more goes out than comes in. Let's find where to cut back.</>;
+    action = { label: 'Find savings', to: 'planner' };
+  } else if (over.length) {
+    const [c, b] = over[0];
+    tone = 'warn'; title = `Mostly fine — watch your ${c.toLowerCase()}`;
+    body = <>You've spent <b>{money((cur.byCat[c] || 0) - b)}</b> more than usual on {c.toLowerCase()} this month. You still have <b>{money(sim.surplus)}</b> left each month overall.</>;
+    action = { label: `See ${c.toLowerCase()} spending`, to: 'transactions', cat: c };
+  } else if (late.length) {
+    tone = 'warn'; title = `"${late[0].name}" needs a little more`;
+    body = <>You have <b>{money(sim.surplus)}</b> left each month, but this goal needs about <b>{money(late[0].needPerMonth)}</b> a month to be on time.</>;
+    action = { label: 'Plan it', to: 'planner' };
+  } else {
+    tone = 'good'; title = 'You\'re doing well';
+    body = <>After bills and spending, about <b>{money(sim.surplus)}</b> is left each month.{efMonths < 3 ? <> A good next step: build your safety money.</> : <> Your goals are on track.</>}</>;
+    action = { label: 'Plan ahead', to: 'planner' };
+  }
+  return (
+    <Reveal className={`card status status-${tone}`}>
+      <span className="status-face" aria-hidden>{tone === 'good' ? '😊' : tone === 'warn' ? '🙂' : '😟'}</span>
+      <div className="grow">
+        <span className="eyebrow">How am I doing?</span>
+        <h2>{title}</h2>
+        <p>{body}</p>
+      </div>
+      <button className="btn btn-primary" onClick={() => go(action.to, action)}>{action.label} <Icon name="arrow" size={16} /></button>
+    </Reveal>
+  );
 }

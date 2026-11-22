@@ -5,6 +5,7 @@ import { Icon } from './components/ui.jsx';
 import { useInstall } from './pwa.js';
 import Landing from './pages/Landing.jsx';
 import Login from './pages/Login.jsx';
+import Setup from './pages/Setup.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import Import from './pages/Import.jsx';
 import Transactions from './pages/Transactions.jsx';
@@ -15,16 +16,16 @@ import Review from './pages/Review.jsx';
 import Coach from './pages/Coach.jsx';
 
 const NAV = [
-  ['dashboard', 'Overview', 'home', Dashboard],
-  ['import', 'Import', 'upload', Import],
-  ['transactions', 'Transactions', 'list', Transactions],
-  ['recurring', 'Recurring', 'repeat', Recurring],
-  ['profile', 'Profile & goals', 'user', Profile],
-  ['planner', 'What-if planner', 'sliders', Planner],
-  ['review', 'Monthly review', 'report', Review],
-  ['coach', 'Coach', 'chat', Coach],
+  ['dashboard', 'Home', 'home', Dashboard],
+  ['import', 'Add statement', 'upload', Import],
+  ['transactions', 'My spending', 'list', Transactions],
+  ['recurring', 'Subscriptions & bills', 'repeat', Recurring],
+  ['profile', 'My money & goals', 'user', Profile],
+  ['planner', 'Plan ahead', 'sliders', Planner],
+  ['review', 'Monthly report', 'report', Review],
+  ['coach', 'Ask Zvault', 'chat', Coach],
 ];
-const TABS = [['dashboard', 'Home', 'home'], ['transactions', 'Activity', 'list'], ['planner', 'Plan', 'sliders'], ['coach', 'Coach', 'chat']];
+const TABS = [['dashboard', 'Home', 'home'], ['transactions', 'Spending', 'list'], ['planner', 'Plan', 'sliders'], ['coach', 'Ask', 'chat']];
 
 const parseHash = () => {
   const h = window.location.hash.replace(/^#\/?/, '').split('?')[0];
@@ -63,6 +64,9 @@ function Shell() {
   if (auth.loading) return <div className="boot"><span className="brand-mark big">Z</span><span className="spin dark" /></div>;
   if (page === 'login' || !auth.signedIn) return <Login onDone={afterLogin} />;
 
+  const needsSetup = !store.profile.onboarded && !store.txs.length && !store.profile.monthlyIncome;
+  if (needsSetup) return <Setup go={go} onSkip={() => store.setProfile({ onboarded: true })} />;
+
   const Page = (NAV.find((n) => n[0] === page) || NAV[0])[3];
   const alerts = store.nudges.filter((n) => n.level !== 'low').length;
   const flagged = store.recurring.filter((r) => r.alerts.length).length;
@@ -99,7 +103,7 @@ function Shell() {
               <Icon name={auth.user ? 'logout' : 'login'} size={17} />
             </button>
           </div>
-          <div className="guard-mini"><Icon name="shield" size={16} /><span>Educational coach. Never recommends specific securities.</span></div>
+          <div className="guard-mini"><Icon name="shield" size={16} /><span>Zvault explains and plans. It never tells you which stocks or funds to buy.</span></div>
         </div>
       </aside>
       <div className="mobile-bar">

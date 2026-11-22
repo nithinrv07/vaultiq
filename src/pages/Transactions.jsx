@@ -30,11 +30,11 @@ export default function Transactions({ go, toast, params = {} }) {
     setPending(null);
   }
 
-  if (!txs.length) return (<><PageHead eyebrow="Ledger" title="Transactions" /><Empty title="Nothing here yet" body="Import a statement to see and correct transactions." action={<button className="btn btn-primary" onClick={() => go('import')}>Import</button>} /></>);
+  if (!txs.length) return (<><PageHead eyebrow="My spending" title="My spending" /><Empty title="Nothing here yet" body="Import a statement to see and correct transactions." action={<button className="btn btn-primary" onClick={() => go('import')}>Import</button>} /></>);
 
   return (
     <>
-      <PageHead eyebrow="Ledger" title={<>Every rupee, <em>explained</em>.</>} sub="Change any category and the coach learns a rule for that merchant — applied to history and to every future import." />
+      <PageHead eyebrow="My spending" title={<>Every rupee, <em>explained</em>.</>} sub="Wrong category? Tap it and pick the right one. Zvault will remember for next time." />
 
       <Reveal className="card toolbar">
         <label className="search"><Icon name="search" size={16} /><input placeholder="Search merchant or description" value={q} onChange={(e) => setQ(e.target.value)} /></label>
@@ -65,7 +65,7 @@ export default function Transactions({ go, toast, params = {} }) {
         </Reveal>
 
         <Reveal className="card sticky" delay={100}>
-          <div className="card-head"><h3><Icon name="brain" /> Learned rules</h3><span className="badge">{rules.length}</span></div>
+          <div className="card-head"><h3><Icon name="brain" /> Things Zvault remembers</h3><span className="badge">{rules.length}</span></div>
           {rules.length ? (
             <ul className="rules">
               {rules.map((r) => (
@@ -75,7 +75,7 @@ export default function Transactions({ go, toast, params = {} }) {
                 </li>
               ))}
             </ul>
-          ) : <p className="muted small">Change a category in the table. I'll remember the merchant and apply it everywhere.</p>}
+          ) : <p className="muted small">Fix a category in the list and Zvault will remember it for that shop.</p>}
           {!!ruleLog?.length && <p className="muted small">Last: {ruleLog[0].key} → {ruleLog[0].category} ({ruleLog[0].affected} updated)</p>}
         </Reveal>
       </section>
@@ -83,15 +83,15 @@ export default function Transactions({ go, toast, params = {} }) {
       {pending && (
         <div className="modal-bg" onClick={() => setPending(null)}>
           <div className="modal" onClick={(e) => e.stopPropagation()}>
-            <span className="eyebrow">Correction</span>
+            <span className="eyebrow">Remember this?</span>
             <h3>Always file <code>{pending.key}</code> as <CatPill cat={pending.category} />?</h3>
-            <p className="muted">I'll create a rule for this merchant. {pending.matches.length ? `${pending.matches.length} other transaction(s) will be re-categorised too:` : 'No other past transactions match yet — future ones will.'}</p>
+            <p className="muted">Zvault will put this shop in the same category from now on. {pending.matches.length ? `${pending.matches.length} other transaction(s) will be re-categorised too:` : 'No other past transactions match yet — future ones will.'}</p>
             {!!pending.matches.length && (
               <ul className="match-list">{pending.matches.slice(0, 5).map((m) => <li key={m.id}><span>{longDate(m.date)} · {m.description}</span><span className="muted">{m.category} → <b>{pending.category}</b></span></li>)}{pending.matches.length > 5 && <li className="muted">…and {pending.matches.length - 5} more</li>}</ul>
             )}
             <div className="row gap end">
-              <button className="btn" onClick={() => apply(false)}>Only this one</button>
-              <button className="btn btn-primary" onClick={() => apply(true)}><Icon name="brain" size={16} />Learn the rule</button>
+              <button className="btn" onClick={() => apply(false)}>Just this once</button>
+              <button className="btn btn-primary" onClick={() => apply(true)}><Icon name="brain" size={16} />Yes, always</button>
             </div>
           </div>
         </div>

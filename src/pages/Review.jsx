@@ -11,7 +11,7 @@ export default function Review({ go }) {
   const months = useMemo(() => [...new Set(txs.map((t) => monthKey(t.date)))].sort().reverse(), [txs]);
   const cur = monthKey(new Date());
   const [month, setMonth] = useState(months.find((m) => m < cur) || months[0]);
-  if (!txs.length) return (<><PageHead eyebrow="Monthly review" title="Your month, in review" /><Empty title="No months to review" body="Import transactions first." action={<button className="btn btn-primary" onClick={() => go('import')}>Import</button>} /></>);
+  if (!txs.length) return (<><PageHead eyebrow="Monthly report" title="Your monthly report" /><Empty title="No months to review" body="Import transactions first." action={<button className="btn btn-primary" onClick={() => go('import')}>Import</button>} /></>);
   const r = monthlyReview({ txs, month, profile, base, recurring });
   const sim = simulate(profile, base);
   const rate = r.cur.income ? r.net / r.cur.income : 0;
@@ -19,7 +19,7 @@ export default function Review({ go }) {
 
   return (
     <div className="review">
-      <PageHead eyebrow="Monthly review" title={<>{monthLabel(month, true).split(' ')[0]}, <em>in review</em>.</>}
+      <PageHead eyebrow="Monthly report" title={<>{monthLabel(month, true).split(' ')[0]}, <em>in review</em>.</>}
         sub={`${r.count} transactions · ${month === cur ? 'month in progress' : 'complete month'}`}
         right={<div className="row gap no-print">
           <select value={month} onChange={(e) => setMonth(e.target.value)}>{months.map((m) => <option key={m} value={m}>{monthLabel(m, true)}</option>)}</select>
@@ -43,7 +43,7 @@ export default function Review({ go }) {
 
       <section className="grid-1-1">
         <Reveal className="card">
-          <div className="card-head"><h3>By category</h3><span className="muted small">vs plan · vs last month</span></div>
+          <div className="card-head"><h3>What you spent on</h3><span className="muted small">vs plan · vs last month</span></div>
           <ul className="review-cats">
             {r.cats.map((c) => (
               <li key={c.cat}>
@@ -58,7 +58,7 @@ export default function Review({ go }) {
             <Donut size={200} data={r.cats.filter((c) => c.amount > 0).map((c) => ({ label: c.cat, value: c.amount, color: catColor(c.cat) }))} center={<><span className="eyebrow">Spent</span><strong>{money(r.cur.spend, { compact: true })}</strong></>} />
           </Reveal>
           <Reveal className="card">
-            <h3>Top merchants</h3>
+            <h3>Where you spent most</h3>
             <ul className="merchants">{r.merchants.map((m, i) => <li key={m.name}><span className="rank">{i + 1}</span><span className="grow">{m.name}<span className="muted small"> · {m.count}×</span></span><b className="num">{money(m.total)}</b></li>)}</ul>
           </Reveal>
         </div>
@@ -66,12 +66,12 @@ export default function Review({ go }) {
 
       <section className="grid-1-1">
         <Reveal className="card">
-          <h3>Subscriptions charged</h3>
+          <h3>Subscriptions & bills paid</h3>
           <p className="muted small">{r.subs.length} recurring payments · {money(r.subsTotal)} this month</p>
           <ul className="merchants">{r.subs.map((s) => <li key={s.key}><span className="grow">{s.name}{s.alerts.length ? <span className="tag tag-warn">{s.alerts[0].type.replace('-', ' ')}</span> : null}</span><b className="num">{money(s.history.find((h) => monthKey(h.date) === month)?.amount)}</b></li>)}</ul>
         </Reveal>
         <Reveal className="card">
-          <h3>Goals checkpoint</h3>
+          <h3>Your goals</h3>
           <ul className="merchants">{sim.goals.map((g) => <li key={g.id}><span className="grow">{g.name}</span><span className={`tag ${g.onTrack ? 'tag-ok' : 'tag-warn'}`}>{g.onTrack ? 'On track' : 'Behind'}</span></li>)}</ul>
           <p className="muted small">Emergency fund: {money(profile.emergencyFund.current)} of {money(sim.efTarget)} ({Math.round((profile.emergencyFund.current / Math.max(1, sim.efTarget)) * 100)}%).</p>
           <button className="btn btn-s no-print" onClick={() => go('planner')}>Plan next month <Icon name="arrow" size={14} /></button>

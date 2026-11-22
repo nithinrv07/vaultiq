@@ -660,3 +660,72 @@ input[type=range] { background: transparent; height: 20px; }
 }
 @media (display-mode: standalone) { body { overscroll-behavior-y: none; } .lnav { top: max(14px, env(safe-area-inset-top)); } }
 html { -webkit-tap-highlight-color: transparent; }
+
+/* ============ SIMPLE MODE ============ */
+.lever-sub.first { margin-top: 0; padding-top: 0; border-top: 0; }
+.more-toggle { align-self: flex-start; display: inline-flex; align-items: center; gap: 6px; background: var(--paper); border: 1px solid var(--line-2); border-radius: 999px; padding: 8px 14px; font-weight: 650; font-size: 13.5px; cursor: pointer; }
+.more-toggle .icon.down { transform: rotate(90deg); } .more-toggle .icon.up { transform: rotate(-90deg); }
+.more-levers { display: flex; flex-direction: column; gap: 16px; animation: pageIn .4s var(--ease); }
+
+/* status card */
+.status { display: flex; align-items: center; gap: 22px; padding: 24px 26px; border-width: 1.5px; }
+.status h2 { font: 420 clamp(22px, 2.4vw, 30px)/1.15 var(--serif); letter-spacing: -.015em; margin: 6px 0 6px; }
+.status p { color: var(--ink-2); font-size: 15.5px; max-width: 720px; }
+.status-face { font-size: 40px; line-height: 1; flex: none; width: 64px; height: 64px; display: grid; place-items: center; border-radius: 20px; }
+.status-good { border-color: rgba(31,138,90,.35); background: linear-gradient(120deg, rgba(200,241,105,.22), var(--card) 55%); }
+.status-good .status-face { background: rgba(200,241,105,.45); }
+.status-warn { border-color: rgba(217,165,43,.45); background: linear-gradient(120deg, rgba(217,165,43,.14), var(--card) 55%); }
+.status-warn .status-face { background: rgba(217,165,43,.22); }
+.status-bad { border-color: rgba(239,106,76,.45); background: linear-gradient(120deg, rgba(239,106,76,.14), var(--card) 55%); }
+.status-bad .status-face { background: rgba(239,106,76,.2); }
+
+/* guided setup */
+.setup { min-height: 100vh; min-height: 100dvh; display: grid; place-items: center; padding: max(24px, env(safe-area-inset-top)) 20px 32px; background: radial-gradient(ellipse 80% 45% at 50% 0%, rgba(200,241,105,.28), transparent 70%), var(--paper); }
+.setup-card { width: min(520px, 100%); display: flex; flex-direction: column; gap: 12px; animation: pop .55s var(--ease); }
+.setup-card h1 { font: 400 clamp(30px, 5vw, 42px)/1.08 var(--serif); letter-spacing: -.025em; }
+.setup-card > .muted { font-size: 16px; }
+.setup-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 18px; }
+.setup-dots { display: flex; gap: 6px; }
+.setup-dots i { width: 34px; height: 6px; border-radius: 6px; background: var(--paper-2); transition: background .4s; }
+.setup-dots i.on { background: var(--forest); }
+.setup-body { margin: 14px 0 8px; display: flex; flex-direction: column; gap: 14px; }
+.money-input { display: flex; align-items: center; gap: 8px; background: var(--card); border: 1.5px solid var(--line-2); border-radius: 16px; padding: 4px 18px; transition: border-color .2s, box-shadow .2s; }
+.money-input:focus-within { border-color: var(--forest); box-shadow: 0 0 0 4px rgba(20,81,58,.12); }
+.money-input span { font: 400 28px var(--serif); color: var(--muted); }
+.money-input input { border: 0; outline: none; background: transparent; font: 450 30px var(--serif); padding: 12px 0; width: 100%; min-width: 0; font-variant-numeric: tabular-nums; }
+.setup-fields { display: flex; flex-direction: column; gap: 16px; }
+.setup-fields label { display: flex; flex-direction: column; gap: 8px; font-weight: 650; font-size: 14.5px; }
+.setup-fields .money-input input { font-size: 24px; padding: 8px 0; } .setup-fields .money-input span { font-size: 22px; }
+.setup-choices { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.setup-choice { display: flex; align-items: center; gap: 10px; padding: 16px; border-radius: 16px; border: 1.5px solid var(--line-2); background: var(--card); font-weight: 650; font-size: 15px; cursor: pointer; text-align: left; transition: border-color .2s, background .2s, transform .2s var(--ease); }
+.setup-choice:hover { transform: translateY(-1px); }
+.setup-choice.on { border-color: var(--forest); background: rgba(200,241,105,.25); }
+.setup-choice .icon { color: var(--forest); flex: none; }
+.setup-when { display: flex; flex-direction: column; gap: 8px; font-weight: 650; font-size: 14.5px; }
+.setup-when > div { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip-s { padding: 9px 16px; border-radius: 999px; border: 1.5px solid var(--line-2); background: var(--card); font-weight: 650; cursor: pointer; }
+.chip-s.on { background: var(--forest); color: #fff; border-color: var(--forest); }
+.setup-tip { display: flex; gap: 10px; align-items: center; padding: 12px 14px; border-radius: 12px; background: rgba(200,241,105,.25); font-size: 14.5px; }
+.setup-tip .icon { color: var(--forest); flex: none; }
+.setup-actions { display: flex; gap: 10px; margin-top: 12px; }
+.setup-actions.col { flex-direction: column; align-items: stretch; }
+.setup-actions.col .link { align-self: center; margin-top: 6px; font-size: 14.5px; }
+.btn-big { padding: 15px 22px; font-size: 16px; border-radius: 16px; justify-content: center; }
+.setup-done { width: 70px; height: 70px; border-radius: 22px; background: var(--lime); color: var(--forest); display: grid; place-items: center; margin-bottom: 8px; animation: pop .6s var(--ease); }
+.reveal-quick { animation: pageIn .4s var(--ease); }
+
+/* larger, easier phone UI */
+@media (max-width: 860px) {
+  body { font-size: 16px; }
+  .status { flex-direction: column; align-items: flex-start; gap: 14px; padding: 20px; }
+  .status .btn { width: 100%; justify-content: center; padding: 13px; }
+  .btn { padding: 12px 18px; font-size: 15px; }
+  .btn-s { padding: 10px 14px; font-size: 14px; }
+  .nudge p, .lever, .small { font-size: 14px; }
+  .cat-select { padding: 7px 12px; font-size: 13.5px; }
+  input[type=range] { height: 32px; }
+  input[type=range]::-webkit-slider-thumb { width: 26px; height: 26px; margin-top: -10px; }
+  .setup-choices { grid-template-columns: 1fr; }
+  .table td { padding: 13px 12px; }
+}
+.money-input input:focus { box-shadow: none !important; border: 0 !important; }

@@ -213,25 +213,25 @@ export function buildNudges({ txs, profile, base, recurring, today = new Date() 
     const s = cur.byCat[c] || 0;
     if (!b) continue;
     const projected = frac > 0.15 ? s / frac : s;
-    if (s > b) nudges.push({ level: 'high', cat: c, title: `${c} is over plan`, body: `${money(s)} spent vs a ${money(b)} plan — ${money(s - b)} over with ${dim - today.getDate()} days left.`, action: { label: `Model cutting ${c.toLowerCase()}`, to: 'planner', cut: c } });
-    else if (projected > b * 1.12 && s > b * 0.4) nudges.push({ level: 'mid', cat: c, title: `${c} is drifting`, body: `At this pace you'll land near ${money(projected)} (plan ${money(b)}). Easing off ~${money((projected - b) / Math.max(1, dim - today.getDate()))}/day keeps you on track.`, action: { label: 'See transactions', to: 'transactions', cat: c } });
+    if (s > b) nudges.push({ level: 'high', cat: c, title: `Too much on ${c}`, body: `You've spent ${money(s)} on ${c.toLowerCase()} this month. Your limit is ${money(b)}, so you're ${money(s - b)} over with ${dim - today.getDate()} days to go.`, action: { label: `Model cutting ${c.toLowerCase()}`, to: 'planner', cut: c } });
+    else if (projected > b * 1.12 && s > b * 0.4) nudges.push({ level: 'mid', cat: c, title: `${c} is going up fast`, body: `At this rate you'll spend about ${money(projected)} this month (your limit is ${money(b)}). Spend about ${money((projected - b) / Math.max(1, dim - today.getDate()))} less a day to stay on track.`, action: { label: 'See transactions', to: 'transactions', cat: c } });
   }
   // unusual single purchases
   const recent = txs.filter((t) => monthKey(t.date) === mk && t.amount < 0 && isSpendCat(t.category));
   for (const t of recent) {
     const avg = (base.byCat[t.category] || 0);
     if (avg > 0 && -t.amount > Math.max(avg * 0.6, 1500) && t.category !== 'Housing') {
-      nudges.push({ level: 'low', cat: t.category, title: 'Larger than usual purchase', body: `${money(-t.amount)} at ${prettyMerchant(t.description)} — that's ${Math.round((-t.amount / avg) * 100)}% of a typical month of ${t.category}.`, action: { label: 'Review it', to: 'transactions', q: prettyMerchant(t.description) } });
+      nudges.push({ level: 'low', cat: t.category, title: 'Big purchase', body: `${money(-t.amount)} at ${prettyMerchant(t.description)}. You usually spend ${money(avg)} a month on ${t.category.toLowerCase()}.`, action: { label: 'Review it', to: 'transactions', q: prettyMerchant(t.description) } });
     }
   }
   for (const r of recurring) for (const a of r.alerts) {
-    nudges.push({ level: a.type === 'price-up' || a.type === 'missed' ? 'mid' : 'low', cat: r.category, title: `${r.name}: ${a.type === 'price-up' ? 'price increase' : a.type === 'price-down' ? 'price drop' : a.type === 'missed' ? 'missed charge' : 'possibly unused'}`, body: a.text, action: { label: 'Open subscriptions', to: 'recurring' } });
+    nudges.push({ level: a.type === 'price-up' || a.type === 'missed' ? 'mid' : 'low', cat: r.category, title: `${r.name}: ${a.type === 'price-up' ? 'price went up' : a.type === 'price-down' ? 'price went down' : a.type === 'missed' ? 'payment missing' : 'still using it?'}`, body: a.text, action: { label: 'Open subscriptions', to: 'recurring' } });
   }
   const sim = simulate(profile, base);
-  if (sim.surplus < 0) nudges.unshift({ level: 'high', title: 'Spending more than you earn', body: `Your model runs a ${money(-sim.surplus)} monthly gap. That comes out of your emergency fund.`, action: { label: 'Try a what-if', to: 'planner' } });
+  if (sim.surplus < 0) nudges.unshift({ level: 'high', title: 'Spending more than you earn', body: `You spend about ${money(-sim.surplus)} more than you earn each month. That comes out of your savings.`, action: { label: 'Try a what-if', to: 'planner' } });
   const efMonths = (Number(profile.emergencyFund.current) || 0) / Math.max(1, sim.essentials);
-  if (efMonths < 3) nudges.push({ level: 'mid', title: 'Thin safety cushion', body: `Your emergency fund covers ${efMonths.toFixed(1)} months of essentials. A common rule of thumb is 3–6 months.`, action: { label: 'Update profile', to: 'profile' } });
-  for (const g of sim.goals) if (!g.onTrack && g.saved < g.target) nudges.push({ level: 'mid', title: `"${g.name}" is behind`, body: g.doneDate ? `Projected ${monthLabel(monthKey(g.doneDate), true)} — ${g.slipMonths} month(s) after your target date.` : `At the current surplus this goal isn't reached within 7 years.`, action: { label: 'Plan it', to: 'planner' } });
+  if (efMonths < 3) nudges.push({ level: 'mid', title: 'Safety money is low', body: `Your safety money would cover ${efMonths.toFixed(1)} months of bills. It's good to have 3 to 6 months saved for emergencies.`, action: { label: 'Update my savings', to: 'profile' } });
+  for (const g of sim.goals) if (!g.onTrack && g.saved < g.target) nudges.push({ level: 'mid', title: `"${g.name}" is running late`, body: g.doneDate ? `You'll reach it around ${monthLabel(monthKey(g.doneDate), true)}, ${g.slipMonths} month(s) after you wanted.` : `At this rate you won't reach this goal in the next 7 years.`, action: { label: 'Plan it', to: 'planner' } });
   const order = { high: 0, mid: 1, low: 2 };
   return nudges.sort((a, b) => order[a.level] - order[b.level]);
 }

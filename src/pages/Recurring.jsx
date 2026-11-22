@@ -7,7 +7,7 @@ const ALERT_LABEL = { 'price-up': 'Price up', 'price-down': 'Price down', missed
 
 export default function Recurring({ go, toast }) {
   const { recurring, setUsage } = useStore();
-  if (!recurring.length) return (<><PageHead eyebrow="Recurring" title="Subscriptions & bills" /><Empty title="No patterns yet" body="I need at least two or three cycles of a charge to spot it. Import more history." action={<button className="btn btn-primary" onClick={() => go('import')}>Import</button>} /></>);
+  if (!recurring.length) return (<><PageHead eyebrow="Subscriptions & bills" title="Subscriptions & bills" /><Empty title="No patterns yet" body="I need at least two or three cycles of a charge to spot it. Import more history." action={<button className="btn btn-primary" onClick={() => go('import')}>Import</button>} /></>);
   const active = recurring.filter((r) => r.status !== 'cancel');
   const monthly = active.reduce((a, r) => a + r.monthly, 0);
   const subs = active.filter((r) => r.category === 'Subscriptions');
@@ -16,11 +16,11 @@ export default function Recurring({ go, toast }) {
 
   return (
     <>
-      <PageHead eyebrow="Recurring" title={<>The money that <em>moves on its own</em>.</>} sub="Detected from regular cadence and stable amounts. I watch for price changes, missed charges and things you've stopped using." />
+      <PageHead eyebrow="Subscriptions & bills" title={<>Money that <em>leaves on its own</em>.</>} sub="Zvault finds payments that repeat and warns you when a price goes up or you stop using something." />
       <section className="kpis kpis-3">
-        <Reveal className="card kpi"><span className="eyebrow">Recurring / month</span><strong className="kpi-v"><CountUp value={monthly} /></strong><span className="muted small">{money(monthly * 12)} a year across {active.length}</span></Reveal>
+        <Reveal className="card kpi"><span className="eyebrow">Total every month</span><strong className="kpi-v"><CountUp value={monthly} /></strong><span className="muted small">{money(monthly * 12)} a year across {active.length}</span></Reveal>
         <Reveal className="card kpi" delay={80}><span className="eyebrow">Subscriptions</span><strong className="kpi-v"><CountUp value={subs.reduce((a, r) => a + r.monthly, 0)} /></strong><span className="muted small">{subs.length} services</span></Reveal>
-        <Reveal className="card kpi kpi-accent" delay={160}><span className="eyebrow">Needs attention</span><strong className="kpi-v">{flagged.length}</strong><span className="muted small">{cancelSave ? `${money(cancelSave)}/mo marked to cancel` : 'price changes · unused · missed'}</span></Reveal>
+        <Reveal className="card kpi kpi-accent" delay={160}><span className="eyebrow">Worth a look</span><strong className="kpi-v">{flagged.length}</strong><span className="muted small">{cancelSave ? `${money(cancelSave)}/mo marked to cancel` : 'price changes · unused · missed'}</span></Reveal>
       </section>
 
       <section className="rec-grid">
@@ -40,7 +40,7 @@ export default function Recurring({ go, toast }) {
               <div className="row gap-s">
                 {['Subscriptions', 'Entertainment'].includes(r.category) && r.status !== 'cancel' &&
                   <button className="btn btn-s" onClick={() => { setUsage(r.key, { lastUsed: todayStr() }); toast({ title: `Noted — you use ${r.name}`, body: 'I\'ll check in again in a month.' }); }}><Icon name="check" size={14} />I use this</button>}
-                <button className={`btn btn-s ${r.status === 'cancel' ? '' : 'btn-ghost-danger'}`} onClick={() => setUsage(r.key, { status: r.status === 'cancel' ? 'active' : 'cancel' })}>{r.status === 'cancel' ? 'Undo' : 'Plan to cancel'}</button>
+                <button className={`btn btn-s ${r.status === 'cancel' ? '' : 'btn-ghost-danger'}`} onClick={() => setUsage(r.key, { status: r.status === 'cancel' ? 'active' : 'cancel' })}>{r.status === 'cancel' ? 'Undo' : "I'll cancel this"}</button>
               </div>
             </div>
           </Reveal>

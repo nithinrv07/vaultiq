@@ -52,7 +52,7 @@ export default function Import({ go, toast }) {
 
   return (
     <>
-      <PageHead eyebrow="Ingest" title={<>Bring in the <em>mess</em>.</>} sub="PDF statements, CSV exports from any bank, or a pile of transaction SMS. Everything is parsed in your browser — nothing is uploaded." />
+      <PageHead eyebrow="Add statement" title={<>Add your <em>bank statement</em>.</>} sub="PDF statements, CSV exports from any bank, or a pile of transaction SMS. Everything is parsed in your browser — nothing is uploaded." />
 
       <section className="grid-1-1">
         <Reveal className={`card drop ${drag ? 'is-drag' : ''}`}
@@ -63,8 +63,8 @@ export default function Import({ go, toast }) {
           <div className="drop-art">
             <span className="doc d1">PDF</span><span className="doc d2">CSV</span><span className="doc d3">TXT</span>
           </div>
-          <h3>{busy ? 'Reading…' : 'Drop statements here'}</h3>
-          <p className="muted">or click to browse · PDF, CSV, TSV, TXT · multiple files OK</p>
+          <h3>{busy ? 'Reading…' : 'Tap to choose a file'}</h3>
+          <p className="muted">or drag it here · PDF or CSV from your bank's app or website</p>
           <ul className="checks small">
             <li><Icon name="check" size={14} />Header detection across 25 rows of bank preamble</li>
             <li><Icon name="check" size={14} />Debit/Credit columns, signed amounts or Dr/Cr flags</li>
@@ -75,14 +75,14 @@ export default function Import({ go, toast }) {
 
         <Reveal className="card" delay={100}>
           <div className="tabs">
-            <button className={tab === 'sms' ? 'on' : ''} onClick={() => setTab('sms')}><Icon name="phone" size={15} />Bank SMS</button>
-            <button className={tab === 'csv' ? 'on' : ''} onClick={() => setTab('csv')}><Icon name="file" size={15} />Paste CSV / text</button>
+            <button className={tab === 'sms' ? 'on' : ''} onClick={() => setTab('sms')}><Icon name="phone" size={15} />Paste bank SMS</button>
+            <button className={tab === 'csv' ? 'on' : ''} onClick={() => setTab('csv')}><Icon name="file" size={15} />Paste text</button>
           </div>
           <textarea className="paste" rows={10} value={text} onChange={(e) => setText(e.target.value)}
             placeholder={tab === 'sms' ? 'Paste one or many SMS. Separate messages with a blank line.\n\nRs.450.00 debited from A/c XX4821 on 12-03-25 to VPA swiggy@icici…' : 'Date,Description,Amount\n03/12/2025,UBER TRIP,-245.00'} />
           <div className="row between wrap gap">
-            <button className="link" onClick={() => setText(tab === 'sms' ? SAMPLE_SMS : SAMPLE_CSV)}>Use a messy sample</button>
-            <button className="btn btn-primary" onClick={parsePasted} disabled={!text.trim()}>Parse <Icon name="arrow" size={16} /></button>
+            <button className="link" onClick={() => setText(tab === 'sms' ? SAMPLE_SMS : SAMPLE_CSV)}>Show me an example</button>
+            <button className="btn btn-primary" onClick={parsePasted} disabled={!text.trim()}>Read it <Icon name="arrow" size={16} /></button>
           </div>
         </Reveal>
       </section>
@@ -120,8 +120,8 @@ export default function Import({ go, toast }) {
 
       {!txs.length && !preview && (
         <Reveal className="card demo-cta">
-          <div><h3>Just exploring?</h3><p className="muted">Load six months of realistic transactions, a profile and goals.</p></div>
-          <button className="btn btn-primary" onClick={() => { loadDemo(); go('dashboard'); }}><Icon name="spark" />Load demo</button>
+          <div><h3>Just looking around?</h3><p className="muted">Try Zvault with six months of sample spending and goals.</p></div>
+          <button className="btn btn-primary" onClick={() => { loadDemo(); go('dashboard'); }}><Icon name="spark" />Try sample data</button>
         </Reveal>
       )}
     </>

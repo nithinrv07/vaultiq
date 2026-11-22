@@ -24,7 +24,7 @@ export default function Coach() {
 
   return (
     <>
-      <PageHead eyebrow="Coach" title={<>Ask the <em>coach</em>.</>} sub="Plain-language questions, answered with your own numbers." />
+      <PageHead eyebrow="Ask Zvault" title={<>Ask <em>anything</em>.</>} sub="Type a question in your own words. Answers use your real numbers." />
       <section className="grid-3-1">
         <Reveal className="card chat">
           <div className="chat-log">
@@ -38,7 +38,7 @@ export default function Coach() {
             <div ref={end} />
           </div>
           <form className="chat-input" onSubmit={(e) => { e.preventDefault(); send(); }}>
-            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Ask about your money…" />
+            <input value={q} onChange={(e) => setQ(e.target.value)} placeholder="e.g. How much can I save each month?" />
             <button className="btn btn-primary" aria-label="Send"><Icon name="arrow" /></button>
           </form>
         </Reveal>
